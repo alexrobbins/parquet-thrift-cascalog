@@ -1,0 +1,6 @@
+* Tests
+** Basic read/write
+** Projection
+** Filter
+* Filter api DSL
+* Accepting a subset of fields in tap ...  :outfields
