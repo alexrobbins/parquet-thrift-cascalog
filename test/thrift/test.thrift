@@ -1,8 +1,9 @@
-namespace java parquet.cascalog.test
+namespace java parquet.thrift.cascalog.test
 
 struct Name {
-  1: required string first_name,
-  2: optional string last_name
+  1: required i32 id,
+  2: required string first_name,
+  3: optional string last_name
 }
 
 struct Address {

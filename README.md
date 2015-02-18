@@ -1,6 +1,6 @@
-# parquet-cascalog
+# parquet-thrift-cascalog
 
-A Clojure library designed to ... well, that part is up to you.
+Idiomatic Cascalog taps to read and write Parquet Thrift files.
 
 ## Usage
 

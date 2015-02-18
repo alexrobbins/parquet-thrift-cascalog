@@ -8,16 +8,16 @@
    class to write. When reading, the thrift class can be read from the
    metadata but the class must be available on the classpath."
   ([] (ParquetTBaseScheme. ))
-  ([{:keys [thrift-class filter projection]} opt-map]
+  ([{:keys [thrift-class filter projection]}]
      (let [config (ParquetValueScheme$Config.)
            config (if thrift-class
-                    (.withRecordClass thrift-class)
+                    (.withRecordClass config thrift-class)
                     config)
            config (if filter
-                    (.withFilterPredicate filter)
+                    (.withFilterPredicate config filter)
                     config)
            config (if projection
-                    (.withProjectionString projection)
+                    (.withProjectionString config projection)
                     config)]
        (ParquetTBaseScheme. config))))
 
