@@ -10,22 +10,21 @@
            [parquet.filter2.predicate FilterApi]
            [parquet.io.api Binary]))
 
-(deftest roundtrip-test
-  (io/with-log-level :fatal
-    (let [name (doto (Name. 1 "First name")
-                 (.setLast_name "Last name"))]
-      (io/with-fs-tmp [_ tmp]
-        (?- (hfs-parquet tmp :thrift-class Name)   ;; write names
-            [name])
-        (test?<- [name]
-                 [?name]
-                 ((hfs-parquet tmp) ?name))))))
-
 (defn make-name [id fname & [lname]]
   (let [name (Name. id fname)]
     (when lname
       (.setLast_name name lname))
     name))
+
+(deftest roundtrip-test
+  (io/with-log-level :fatal
+    (let [name (make-name 1 "First name" "Last name")]
+      (io/with-fs-tmp [_ tmp]
+        (?- (hfs-parquet tmp :thrift-class Name)   ;; write name
+            [name])
+        (test?<- [name]
+                 [?name]
+                 ((hfs-parquet tmp) ?name))))))
 
 (defn make-names [& names]
   (mapv #(apply make-name %) names))
