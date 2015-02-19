@@ -6,11 +6,13 @@
             [parquet-thrift-cascalog.core :refer :all])
   (:import [parquet.thrift.cascalog.test Address
                                          Name
-                                         TestPerson]))
+                                         TestPerson]
+           [parquet.filter2.predicate FilterApi]
+           [parquet.io.api Binary]))
 
 (deftest roundtrip-test
   (io/with-log-level :fatal
-    (let [name (doto (Name. 23 "First name")
+    (let [name (doto (Name. 1 "First name")
                  (.setLast_name "Last name"))]
       (io/with-fs-tmp [_ tmp]
         (?- (hfs-parquet tmp :thrift-class Name)   ;; write line
@@ -19,16 +21,32 @@
                  [?name]
                  ((hfs-parquet tmp) ?name))))))
 
+(defn make-names [& names]
+  (mapv (fn [[id fname lname]]
+          (let [name (Name. id fname)]
+            (when lname
+              (.setLast_name name lname))
+            name))
+        names))
+
 (deftest filter-test
   (io/with-log-level :fatal
-    (let [name (doto (Name. 23 "First name")
-                 (.setLast_name "Last name"))
-          ;; xxx Setup age filter
-          ;; string filter for first name using binary column
-          ]
+    (let [id-pred (FilterApi/eq (FilterApi/intColumn "id") (int 1)) ;; without coercion this fails as a long.
+          string-pred (FilterApi/eq (FilterApi/binaryColumn "first_name") (Binary/fromString "A"))
+          nil-pred (FilterApi/eq (FilterApi/binaryColumn "last_name") nil)
+          names (make-names
+                 [1 "A" "Lastname"]
+                 [2 "B" "Lastname"]
+                 [3 "C" nil])]
       (io/with-fs-tmp [_ tmp]
         (?- (hfs-parquet tmp :thrift-class Name)   ;; write line
-            [name])
-        (test?<- [name]
+            names)
+        (test?<- [(first names)]
                  [?name]
-                 ((hfs-parquet tmp) ?name))))))
+                 ((hfs-parquet tmp :filter id-pred) ?name))
+        (test?<- [(first names)]
+                 [?name]
+                 ((hfs-parquet tmp :filter string-pred) ?name))
+        (test?<- [(last names)]
+                 [?name]
+                 ((hfs-parquet tmp :filter nil-pred) ?name))))))
