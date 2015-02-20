@@ -72,8 +72,8 @@ You can specify the Thrift class if you want, it won't hurt anything.
 
 ### Predicate Pushdown
 
-Parquet supports the concept of predicate pushdown. You can provide a
-predicate that Parquet runs while iterating over your records. Parquet
+Parquet supports predicate pushdown. You can provide a predicate
+that Parquet runs while iterating over your records. Parquet
 keeps some simple statistics on the blocks it writes, so predicates
 can skip whole sections of records without deserialization. Big
 performance win.
