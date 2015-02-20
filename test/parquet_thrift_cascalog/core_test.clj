@@ -3,12 +3,11 @@
             [cascalog.cascading.io :as io]
             [cascalog.api :refer :all]
             [cascalog.logic.testing :refer :all]
-            [parquet-thrift-cascalog.core :refer :all])
+            [parquet-thrift-cascalog.core :refer :all]
+            [parquet-thrift-cascalog.filter :as f])
   (:import [parquet.thrift.cascalog.test Address
                                          Name
-                                         TestPerson]
-           [parquet.filter2.predicate FilterApi]
-           [parquet.io.api Binary]))
+                                         TestPerson]))
 
 (defn make-name [id fname & [lname]]
   (let [name (Name. id fname)]
@@ -37,9 +36,9 @@
 
 (deftest filter-test
   (io/with-log-level :fatal
-    (let [id-pred (FilterApi/eq (FilterApi/intColumn "id") (int 1)) ;; without coercion this fails as a long.
-          string-pred (FilterApi/eq (FilterApi/binaryColumn "first_name") (Binary/fromString "A"))
-          nil-pred (FilterApi/eq (FilterApi/binaryColumn "last_name") nil)]
+    (let [id-pred (f/eq (f/int-column "id") (int 1)) ;; without coercion this fails as a long.
+          string-pred (f/eq (f/binary-column "first_name") (f/string->binary "A"))
+          nil-pred (f/eq (f/binary-column "last_name") nil)]
       (io/with-fs-tmp [_ tmp]
         (?- (hfs-parquet tmp :thrift-class Name)   ;; write names
             names)

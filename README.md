@@ -49,23 +49,44 @@ keeps some simple statistics on the blocks it writes, so predicates
 can skip whole sections of records without deserialization. Big
 performance win.
 
-You can define filters using the parquet.filter2.predicate.FilterApi
-class's static methods. Be careful to match the types of your Thrift
-schema with the values you provide in the filters. Things like
-long/int mismatches will cause exceptions.
+Use the functions in `parquet-thrift-cascalog.filter` to set up your
+predicates.  Be careful to match the types of your Thrift schema with
+the values you provide in the filters. Things like long/int mismatches
+will cause exceptions.
 
 ```clojure
 (ns example.core
-    (:require [parquet-thrift-cascalog.core :refer [hfs-parquet]])
-    (:import [parquet.filter2.predicate FilterApi]))
+    (:require [parquet-thrift-cascalog.core :refer [hfs-parquet]]
+              [parquet-thrift-cascalog.filter :as f]))
 
-(def id-is-1 (FilterApi/eq (FilterApi/intColumn "id") (int 1))
+(def id-is-1 (f/eq (f/int-column "id") (int 1)) ;;coerce to avoid int/long mismatch
 
 (?- (stdout)
     (hfs-parquet path :filter id-is-1))
 ```
 
-Adding a Clojure filter DSL is on the roadmap for this library.
+#### Nils
+
+* nil can only be passed to eq or notEq.
+* nil is eq to nil and notEq to everything else.
+* All other predicates drop rows with nil, since nil isn't comparable.
+
+#### Strings
+
+Parquet represents strings as binary columns. When using a string as a
+filter value use the `string->binary` helper function to get the
+string into a comparable binary format.
+
+```clojure
+(ns example.core
+    (:require [parquet-thrift-cascalog.core :refer [hfs-parquet]]
+              [parquet-thrift-cascalog.filter :as f]))
+
+(def fname-is-alex (f/eq (f/binary-column "first_name") (string->binary "alex"))
+
+(?- (stdout)
+    (hfs-parquet path :filter fname-is-alex))
+```
 
 ### Projection
 
