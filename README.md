@@ -78,7 +78,7 @@ keeps some simple statistics on the blocks it writes, so predicates
 can skip whole sections of records without deserialization. Big
 performance win.
 
-Use the functions in `parquet-thrift-cascalog.filter` to set up your
+Use the functions in [`parquet-thrift-cascalog.filter`](src/parquet_thrift_cascalog/filter.clj) to set up your
 predicates.  Be careful to match the types of your Thrift schema with
 the values you provide in the filters. Things like long/int mismatches
 will cause exceptions.
