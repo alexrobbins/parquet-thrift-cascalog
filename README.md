@@ -10,7 +10,7 @@ The latest release version of parquet-thrift-cascalog is hosted on [Clojars](htt
 
 ## Writing
 
-When writing, the thrift class must be specified. Pass a tap of thrift
+When writing, the Thrift class must be specified. Pass a tap of Thrift
 objects and they'll be written in Parquet format.
 
 ```clojure
@@ -26,7 +26,7 @@ objects and they'll be written in Parquet format.
 isn't a problem if your query only has one output field. However, your
 tuple might have several fields to provide values for a templatetap, or
 because the query is used in several places. Specify the field
-containing your thrift object with `:outfields`.
+containing your Thrift object with `:outfields`.
 
 ```clojure
 (ns example.core
@@ -43,11 +43,11 @@ containing your thrift object with `:outfields`.
 ```
 
 This example query writes to subfolders specified by `?shard`, but
-the output in those folders is only the thrift object.
+the output in those folders is only the Thrift object.
 
 ## Reading
 
-In the simplest case, just pass the path to the tap. The thrift
+In the simplest case, just pass the path to the tap. The Thrift
 definition class must be available on the classpath but you don't have
 to specify it.
 
@@ -59,7 +59,7 @@ to specify it.
     (hfs-parquet path))
 ```
 
-You can specify the thrift class if you want, it won't hurt anything.
+You can specify the Thrift class if you want, it won't hurt anything.
 
 ```clojure
 (ns example.core
