@@ -1,4 +1,4 @@
-(defproject parquet-thrift-cascalog "0.1.2-SNAPSHOT"
+(defproject parquet-thrift-cascalog "0.1.2"
   :description "Idiomatic Cascalog taps for reading Thrift-specified Parquet data."
   :url "https://github.com/alexrobbins/parquet-thrift-cascalog"
   :license {:name "Eclipse Public License"
