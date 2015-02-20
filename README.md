@@ -2,6 +2,12 @@
 
 Idiomatic Cascalog taps to read and write Parquet Thrift files.
 
+## Latest Version
+
+The latest release version of parquet-thrift-cascalog is hosted on [Clojars](https://clojars.org):
+
+[![Clojars Project](http://clojars.org/parquet-thrift-cascalog/latest-version.svg)](http://clojars.org/parquet-thrift-cascalog)
+
 ## Writing
 
 When writing, the thrift class must be specified. Pass a tap of thrift
