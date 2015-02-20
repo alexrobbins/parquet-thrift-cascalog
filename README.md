@@ -98,13 +98,13 @@ will cause exceptions.
 
 * nil can only be passed to eq or notEq.
 * nil is eq to nil and notEq to everything else.
-* All other predicates drop rows with nil, since nil isn't comparable.
+* All other predicates drop rows with nil, since nil isn't `Comparable`.
 
 #### Strings
 
 Parquet represents strings as binary columns. When using a string as a
 filter value use the `string->binary` helper function to get the
-string into a comparable binary format.
+string into a `Comparable` binary format.
 
 ```clojure
 (ns example.core
@@ -120,7 +120,7 @@ string into a comparable binary format.
 ### Projection
 
 Parquet also supports projections (in the relational algebra
-sense). Many data jobs require only a subset of an objects fields. For
+sense). Many data jobs require only a subset of an object's fields. For
 example, if we wanted only the `id` and `first_name` fields of a
 larger Name object, we could pass a projection string to specify the
 fields we cared about.
