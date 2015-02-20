@@ -22,6 +22,29 @@ objects and they'll be written in Parquet format.
     [name1 name2])
 ```
 
+`hfs-parquet` can only handle a single field per output tuple. This
+isn't a problem if your query only has one output field. However, your
+tuple might have several fields to provide values for a templatetap, or
+because the query is used in several places. Specify the field
+containing your thrift object with `:outfields`.
+
+```clojure
+(ns example.core
+    (:require [parquet-thrift-cascalog.core :refer [hfs-parquet]])
+    (:import [parquet.thrift.cascalog.test Name]))
+
+(?- (hfs-parquet path :thrift-class Name
+                      :outfields "?name"
+                      :templatefields "?shard"
+                      :sink-template "%s")
+    (<- [?name ?shard]
+        (names ?name)
+        (name->shard ?name :> ?shard)))
+```
+
+This example query writes to subfolders specified by `?shard`, but
+the output in those folders is only the thrift object.
+
 ## Reading
 
 In the simplest case, just pass the path to the tap. The thrift

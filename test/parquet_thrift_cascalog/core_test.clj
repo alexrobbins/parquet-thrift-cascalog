@@ -66,3 +66,16 @@
       (test?<- (make-names [0 "" "Lastname"] [0 "" "Lastname"] [0 ""])
                [?name]
                ((hfs-parquet tmp :projection "last_name") ?name)))))
+
+(def ones (constantly 1))
+
+(deftest outfields-test
+  (io/with-log-level :fatal
+    (io/with-fs-tmp [_ tmp]
+      (?- (hfs-parquet tmp :thrift-class Name :outfields "?name") ;; write names
+          (<- [?name ?one]
+              (names ?name)
+              (ones ?name :> ?one)))
+      (test?<- names
+               [?name]
+               ((hfs-parquet tmp) ?name)))))
