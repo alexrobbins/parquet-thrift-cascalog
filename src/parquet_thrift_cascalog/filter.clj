@@ -2,8 +2,15 @@
   "Clojure wrapper over the Parquet filter interface."
   (:refer-clojure :exclude [and or not])
   (:require [clojure.tools.macro :as m])
-  (:import [parquet.filter2.predicate FilterApi Operators$Column]
+  (:import [java.nio ByteBuffer]
+           [parquet.filter2.predicate FilterApi Operators$Column]
            [parquet.io.api Binary]))
+
+;; Comparison helpers
+
+(defn string->binary
+  [^String string]
+  (Binary/fromString string))
 
 ;; Columns
 
@@ -46,13 +53,26 @@
 
 (extend-protocol Column
   (Class/forName "[B")
-  (column [_ s] (binary-column s))
+  (column [v s]
+    (-> (Binary/fromByteArray v) (column s)))
 
-  ;; Generates a column of the same type with the new path.
+  ByteBuffer
+  (column [v s]
+    (-> (Binary/fromByteBuffer v) (column s)))
+
+  ;; When passed a column, `column` generates a column of the same
+  ;; type with the new column path.
   Operators$Column
   (column [c s]
     (let [f (column-impl (.getColumnType c))]
       (f nil s)))
+
+  String
+  (column [s col-name]
+    (column (string->binary s) col-name))
+
+  Binary
+  (column [_ s] (binary-column s))
 
   Integer
   (column [_ s] (int-column s))
@@ -117,9 +137,3 @@
      ~'or or
      ~'not not]
     ~@forms))
-
-;; Comparison helpers
-
-(defn string->binary
-  [^String string]
-  (Binary/fromString string))

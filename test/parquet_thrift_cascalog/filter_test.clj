@@ -10,3 +10,13 @@
             (let [column-name "face"]
               (and (not (< column-name 10))
                    (>= column-name 13))))))))
+
+(deftest column-creation-test
+  (let [original (f/column 10 "col")
+        cloned (f/column original "new-name")]
+    (is (= Long
+           (.getColumnType original)
+           (.getColumnType cloned))
+        "The cloned column has the same type as the original..")
+    (is (= "col" (.toDotString (.getColumnPath original))))
+    (is (= "new-name" (.toDotString (.getColumnPath cloned)))))  )
