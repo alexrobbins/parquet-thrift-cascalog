@@ -11,7 +11,7 @@
                                   [cascalog/midje-cascalog "2.1.1"]]
                    :plugins [[lein-thriftc "0.2.1"]
                              [lein-midje "3.1.3"]]
-                   ;; :hooks [leiningen.thriftc]
+                   :hooks [leiningen.thriftc]
                    :thriftc {:source-paths ["test/thrift"]}}
              :provided {:dependencies [[org.apache.hadoop/hadoop-core "1.1.2"]
                                        [org.apache.thrift/libthrift "0.9.2"

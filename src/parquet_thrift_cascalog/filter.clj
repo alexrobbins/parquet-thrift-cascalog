@@ -6,12 +6,6 @@
            [parquet.filter2.predicate FilterApi Operators$Column]
            [parquet.io.api Binary]))
 
-;; Comparison helpers
-
-(defn string->binary
-  [^String string]
-  (Binary/fromString string))
-
 ;; Columns
 
 (defn int-column
@@ -38,6 +32,31 @@
   [^String col-path]
   (FilterApi/binaryColumn col-path))
 
+;; No one has to know there aren't string columns.
+(defn string-column
+  [^String col-path]
+  (FilterApi/binaryColumn col-path))
+
+(defprotocol Value
+  (value [s]
+    "Converts values into Parquet appropriate types."))
+
+(extend-protocol Value
+  (Class/forName "[B")
+  (value [s] (Binary/fromByteArray s))
+
+  ByteBuffer
+  (value [s] (Binary/fromByteBuffer s) )
+
+  String
+  (value [s] (Binary/fromString s))
+
+  Object
+  (value [s] s)
+
+  nil
+  (value [s] nil))
+
 (defprotocol Column
   (column [v col-path] "Takes the value that the supplied column path
   will be compared against and the column path, and returns a column
@@ -52,24 +71,12 @@
       :column))
 
 (extend-protocol Column
-  (Class/forName "[B")
-  (column [v s]
-    (-> (Binary/fromByteArray v) (column s)))
-
-  ByteBuffer
-  (column [v s]
-    (-> (Binary/fromByteBuffer v) (column s)))
-
   ;; When passed a column, `column` generates a column of the same
   ;; type with the new column path.
   Operators$Column
   (column [c s]
     (let [f (column-impl (.getColumnType c))]
       (f nil s)))
-
-  String
-  (column [s col-name]
-    (column (string->binary s) col-name))
 
   Binary
   (column [_ s] (binary-column s))
@@ -92,13 +99,15 @@
 ;; Predicates
 
 (defn assert-path!
-  "Asserts that the supplied argument is a string. Used to verify the
-  first argument to the predicate generators."
+  "Asserts that the supplied argument is a string or a column. Used to
+  verify the first argument to the predicate generators."
   [col-path method-name]
-  (assert (string? col-path)
+  (assert (clojure.core/or (string? col-path)
+                           (isa? (class col-path) Operators$Column))
           (format
-           "The first argument to %s must be a string representing the column name."
-           method-name)))
+           "The first argument to %s must be a string representing the column name or a column. It is a %s"
+           method-name
+           (class col-path))))
 
 (defmacro defpred [& method-names]
   `(do ~@(for [m method-names :let [m-name (name m)]]
@@ -106,7 +115,10 @@
               {:arglists '([~'col-path ~'value])}
               [col-path# value#]
               (assert-path! col-path# ~m-name)
-              (. FilterApi ~m (column value# col-path#) value#)))))
+              (let [coerced-v# (value value#)]
+                (if (isa? (class col-path#) Operators$Column)
+                  (. FilterApi ~m col-path# coerced-v#)
+                  (. FilterApi ~m (column coerced-v# col-path#) coerced-v#)))))))
 
 (defpred eq notEq lt ltEq gt gtEq)
 

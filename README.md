@@ -78,43 +78,53 @@ keeps some simple statistics on the blocks it writes, so predicates
 can skip whole sections of records without deserialization. Big
 performance win.
 
-Use the functions in [`parquet-thrift-cascalog.filter`](src/parquet_thrift_cascalog/filter.clj) to set up your
-predicates.  Be careful to match the types of your Thrift schema with
-the values you provide in the filters. Things like long/int mismatches
-will cause exceptions.
+Use the `pred` macro in
+[`parquet-thrift-cascalog.filter`](src/parquet_thrift_cascalog/filter.clj)
+to set up your predicates.  Be careful to match the types of your
+Thrift schema with the values you provide in the filters. Things like
+long/int mismatches will cause exceptions when running the job.
+
+When using a predicate the arguments should be a column name and the
+comparison value. The type of the column is found from the type of
+value you pass.
+
+Valid predicates: `= not= > >= < <= and not or`.
 
 ```clojure
 (ns example.core
     (:require [parquet-thrift-cascalog.core :refer [hfs-parquet]]
-              [parquet-thrift-cascalog.filter :as f]))
+              [parquet-thrift-cascalog.filter :refer [pred]))
 
-(def id-is-1 (f/eq (f/int-column "id") (int 1)) ;;coerce to avoid int/long mismatch
+(def id-is-1 (pred (= "id" (int 1)))  ;;coerce to avoid int/long mismatch
 
 (?- (stdout)
     (hfs-parquet path :filter id-is-1))
+
+(def id-gt-1-and-name-is-ishmael
+  (pred (and (> "id" (int 1))
+             (= "name" "ishmael"))))
+
+(?- (stdout)
+    (hfs-parquet path :filter id-gt-1-and-name-is-ishmael))
 ```
 
 #### Nils
 
-* nil can only be passed to eq or notEq.
-* nil is eq to nil and notEq to everything else.
-* All other predicates drop rows with nil, since nil isn't `Comparable`.
-
-#### Strings
-
-Parquet represents strings as binary columns. When using a string as a
-filter value use the `string->binary` helper function to get the
-string into a `Comparable` binary format.
+* `nil` can only be passed to `=` or `not=`.
+* `nil` is `=` to `nil` and `not=` to everything else.
+* All other predicates drop rows with `nil`, since `nil` isn't `Comparable`.
+* Set the column type manually, since `nil` doesn't provide a type.
 
 ```clojure
 (ns example.core
     (:require [parquet-thrift-cascalog.core :refer [hfs-parquet]]
-              [parquet-thrift-cascalog.filter :as f]))
+              [parquet-thrift-cascalog.filter :as f :refer [pred]))
 
-(def fname-is-alex (f/eq (f/binary-column "first_name") (string->binary "alex"))
+(def fname-is-nil
+     (pred (= (f/string-column "fname") nil)))
 
 (?- (stdout)
-    (hfs-parquet path :filter fname-is-alex))
+    (hfs-parquet path :filter fname-is-nil))
 ```
 
 ### Projection

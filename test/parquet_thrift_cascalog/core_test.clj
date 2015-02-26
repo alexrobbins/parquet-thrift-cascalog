@@ -4,7 +4,7 @@
             [cascalog.api :refer :all]
             [cascalog.logic.testing :refer :all]
             [parquet-thrift-cascalog.core :refer :all]
-            [parquet-thrift-cascalog.filter :as f])
+            [parquet-thrift-cascalog.filter :as f :refer [pred]])
   (:import [parquet.thrift.cascalog.test Address
                                          Name
                                          TestPerson]))
@@ -36,21 +36,29 @@
 
 (deftest filter-test
   (io/with-log-level :fatal
-    (let [id-pred (f/eq (f/int-column "id") (int 1)) ;; without coercion this fails as a long.
-          string-pred (f/eq (f/binary-column "first_name") (f/string->binary "A"))
-          nil-pred (f/eq (f/binary-column "last_name") nil)]
+    (let [id-pred (pred (= "id" (int 1)))
+          id-pred-2 (pred (> "id" (int 1)))
+          string-pred (pred (= "first_name" "A"))
+          nil-pred (pred (= (f/binary-column "last_name") nil))
+          nil-pred-2 (pred (= (f/string-column "last_name") nil))]
       (io/with-fs-tmp [_ tmp]
         (?- (hfs-parquet tmp :thrift-class Name)   ;; write names
             names)
         (test?<- [(first names)]
                  [?name]
                  ((hfs-parquet tmp :filter id-pred) ?name))
+        (test?<- (rest names)
+                 [?name]
+                 ((hfs-parquet tmp :filter id-pred-2) ?name))
         (test?<- [(first names)]
                  [?name]
                  ((hfs-parquet tmp :filter string-pred) ?name))
         (test?<- [(last names)]
                  [?name]
-                 ((hfs-parquet tmp :filter nil-pred) ?name))))))
+                 ((hfs-parquet tmp :filter nil-pred) ?name))
+        (test?<- [(last names)]
+                 [?name]
+                 ((hfs-parquet tmp :filter nil-pred-2) ?name))))))
 
 (deftest projection-test
   (io/with-log-level :fatal

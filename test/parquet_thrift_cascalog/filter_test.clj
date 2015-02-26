@@ -1,4 +1,4 @@
-(ns parquet-thrift-cascalog.core-test
+(ns parquet-thrift-cascalog.filter-test
   (:require [clojure.test :refer :all]
             [parquet-thrift-cascalog.filter :as f]))
 
