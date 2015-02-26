@@ -37,25 +37,25 @@
   [^String col-path]
   (FilterApi/binaryColumn col-path))
 
-(defprotocol Value
-  (value [s]
+(defprotocol ParquetValue
+  (parquet-value [s]
     "Converts values into Parquet appropriate types."))
 
-(extend-protocol Value
+(extend-protocol ParquetValue
   (Class/forName "[B")
-  (value [s] (Binary/fromByteArray s))
+  (parquet-value [s] (Binary/fromByteArray s))
 
   ByteBuffer
-  (value [s] (Binary/fromByteBuffer s) )
+  (parquet-value [s] (Binary/fromByteBuffer s) )
 
   String
-  (value [s] (Binary/fromString s))
+  (parquet-value [s] (Binary/fromString s))
 
   Object
-  (value [s] s)
+  (parquet-value [s] s)
 
   nil
-  (value [s] nil))
+  (parquet-value [s] nil))
 
 (defprotocol Column
   (column [v col-path] "Takes the value that the supplied column path
@@ -115,7 +115,7 @@
               {:arglists '([~'col-path ~'value])}
               [col-path# value#]
               (assert-path! col-path# ~m-name)
-              (let [coerced-v# (value value#)]
+              (let [coerced-v# (parquet-value value#)]
                 (if (isa? (class col-path#) Operators$Column)
                   (. FilterApi ~m col-path# coerced-v#)
                   (. FilterApi ~m (column coerced-v# col-path#) coerced-v#)))))))

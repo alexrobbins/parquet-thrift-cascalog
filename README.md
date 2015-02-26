@@ -127,6 +127,14 @@ Valid predicates: `= not= > >= < <= and not or`.
     (hfs-parquet path :filter fname-is-nil))
 ```
 
+#### ParquetValue protocol
+
+The filter system uses the
+`parquet-thrift-cascalog.filter/ParquetValue` protocol to convert its
+input into a Parquet recognized type. You can extend the protocol with
+any type as long as it can be mapped into one of the existing column
+types.
+
 ### Projection
 
 Parquet also supports projections (in the relational algebra
