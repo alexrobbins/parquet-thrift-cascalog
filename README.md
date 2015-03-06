@@ -118,7 +118,7 @@ Valid predicates: `= not= > >= < <= and not or`.
 ```clojure
 (ns example.core
     (:require [parquet-thrift-cascalog.core :refer [hfs-parquet]]
-              [parquet-thrift-cascalog.filter :as f :refer [pred]))
+              [parquet-thrift-cascalog.filter :as f :refer [pred]]))
 
 (def fname-is-nil
      (pred (= (f/string-column "fname") nil)))
