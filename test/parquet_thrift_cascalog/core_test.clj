@@ -7,7 +7,7 @@
             [parquet-thrift-cascalog.filter :as f :refer [pred]])
   (:import [parquet.thrift.cascalog.test Address
                                          Name
-                                         TestPerson]))
+                                         Person]))
 
 (defn make-name [id fname & [lname]]
   (let [name (Name. id fname)]
@@ -59,6 +59,36 @@
         (test?<- [(last names)]
                  [?name]
                  ((hfs-parquet tmp :filter nil-pred-2) ?name))))))
+
+(defn make-person
+  [id fname lname & [street zip]]
+  (let [name (Name. id fname)
+        _    (.setLast_name name lname)
+        person (Person. name)]
+    (when street
+      (let [address (Address. street)]
+        (when zip (.setZip address zip))
+        (.setAddress person address)))
+    person))
+
+(def people
+  (mapv #(apply make-person %)
+        [[1 "A" "AL"]
+         [2 "B" "BL" "Street"]
+         [2 "C" "CL" "Street" "Zip"]]))
+
+(deftest nested-schema-predicate-test
+  (let [street-pred (pred (= (f/string-column "address.street") nil))
+        zip-pred (pred (= (f/string-column "address.zip") nil))]
+    (io/with-fs-tmp [_ tmp]
+      (?- (hfs-parquet tmp :thrift-class Person)   ;; write people
+          people)
+      (test?<- [(first people)]
+               [?person]
+               ((hfs-parquet tmp :filter street-pred) ?person))
+      (test?<- (subvec people 0 2)
+               [?person]
+               ((hfs-parquet tmp :filter zip-pred) ?person)))))
 
 (deftest projection-test
   (io/with-log-level :fatal

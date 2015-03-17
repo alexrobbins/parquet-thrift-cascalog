@@ -7,13 +7,11 @@ struct Name {
 }
 
 struct Address {
-  1: string street,
-  2: required string zip
+  1: required string street,
+  2: optional string zip
 }
 
-struct TestPerson {
+struct Person {
   1: required Name name,
-  2: optional i32 age,
-  3: Address address,
-  4: string info
+  3: optional Address address,
 }
