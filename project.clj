@@ -3,7 +3,7 @@
   :url "https://github.com/alexrobbins/parquet-thrift-cascalog"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[com.twitter/parquet-cascading "1.6.0rc4"]
+  :dependencies [[com.twitter/parquet-cascading "1.6.0"]
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.macro "0.1.2"]
                  [cascalog "2.1.1"]]
