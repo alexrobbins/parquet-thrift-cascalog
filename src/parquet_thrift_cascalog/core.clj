@@ -2,8 +2,9 @@
   (:require [cascalog.api :refer [hfs-tap lfs-tap]]
             [cascalog.cascading.util :refer [fields]])
   (:import [cascading.tuple Fields]
-           [parquet.cascading ParquetTBaseScheme
-                              ParquetValueScheme$Config]))
+           [org.apache.parquet.cascading
+            ParquetTBaseScheme
+            ParquetValueScheme$Config]))
 
 (defn- parquet-scheme
   "Custom scheme for dealing with Parquet files. Must provide thrift

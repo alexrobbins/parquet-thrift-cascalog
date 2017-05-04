@@ -3,8 +3,8 @@
   (:refer-clojure :exclude [and or not])
   (:require [clojure.tools.macro :as m])
   (:import [java.nio ByteBuffer]
-           [parquet.filter2.predicate FilterApi Operators$Column]
-           [parquet.io.api Binary]))
+           [org.apache.parquet.filter2.predicate FilterApi Operators$Column]
+           [org.apache.parquet.io.api Binary]))
 
 ;; Columns
 
