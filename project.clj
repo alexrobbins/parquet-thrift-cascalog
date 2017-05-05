@@ -1,9 +1,9 @@
-(defproject parquet-thrift-cascalog "1.8.1"
+(defproject parquet-thrift-cascalog "1.9.0"
   :description "Idiomatic Cascalog taps for reading Thrift-specified Parquet data."
   :url "https://github.com/alexrobbins/parquet-thrift-cascalog"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.apache.parquet/parquet-cascading "1.8.1"]
+  :dependencies [[org.apache.parquet/parquet-cascading "1.9.0"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.macro "0.1.2"]
                  [cascalog "2.1.1"]]
